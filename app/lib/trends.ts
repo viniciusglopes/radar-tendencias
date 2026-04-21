@@ -72,13 +72,6 @@ export async function fetchMlTrends(accessToken: string): Promise<TrendItem[]> {
 }
 
 export async function fetchMetaAds(keyword: string): Promise<any[]> {
-  const url = new URL('https://www.facebook.com/ads/library/api/')
-  url.searchParams.set('search_terms', keyword)
-  url.searchParams.set('ad_reached_countries', 'BR')
-  url.searchParams.set('ad_type', 'ALL')
-  url.searchParams.set('limit', '25')
-
-  // Meta Ad Library API requires access token
   const { data: cfg } = await supabaseAdmin
     .from('radar_config')
     .select('value')
@@ -87,9 +80,16 @@ export async function fetchMetaAds(keyword: string): Promise<any[]> {
 
   if (!cfg?.value) return []
 
+  const url = new URL('https://graph.facebook.com/v21.0/ads_archive')
+  url.searchParams.set('search_terms', keyword)
+  url.searchParams.set('ad_reached_countries', '["BR"]')
+  url.searchParams.set('ad_type', 'ALL')
+  url.searchParams.set('ad_active_status', 'ACTIVE')
+  url.searchParams.set('limit', '25')
+  url.searchParams.set('fields', 'id,ad_creative_bodies,ad_creative_link_titles,ad_delivery_start_time,page_name,publisher_platforms,impressions,spend')
   url.searchParams.set('access_token', cfg.value)
 
-  const res = await fetch(url.toString(), { cache: 'no-store' })
+  const res = await fetch(url.toString(), { cache: 'no-store', signal: AbortSignal.timeout(15000) })
   if (!res.ok) return []
   const data = await res.json()
   return data.data || []
