@@ -83,7 +83,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex items-center gap-2 mb-4">
-          {[{ id: '', label: 'Todas' }, { id: 'google_trends', label: 'Google' }, { id: 'ml_trends', label: 'ML' }].map(f => (
+          {[{ id: '', label: 'Todas' }, { id: 'google_trends', label: 'Google' }, { id: 'ml_trends', label: 'ML' }, { id: 'meta_ads', label: 'Meta Ads' }].map(f => (
             <button key={f.id} onClick={() => setFiltroFonte(f.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filtroFonte === f.id ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border'}`}>
               {f.label}
