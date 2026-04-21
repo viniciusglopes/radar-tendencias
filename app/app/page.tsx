@@ -19,6 +19,7 @@ const fonteLabel: Record<string, { label: string; color: string }> = {
   google_trends: { label: 'Google', color: 'bg-blue-100 text-blue-700' },
   ml_trends: { label: 'Mercado Livre', color: 'bg-yellow-100 text-yellow-700' },
   meta_ads: { label: 'Meta Ads', color: 'bg-purple-100 text-purple-700' },
+  youtube: { label: 'YouTube', color: 'bg-red-100 text-red-700' },
 }
 
 export default function Dashboard() {
@@ -53,7 +54,8 @@ export default function Dashboard() {
       else {
         const g = data.resultados?.google_trends?.coletados || 0
         const m = data.resultados?.ml_trends?.coletados || 0
-        setMsg(`Coletados: ${g} do Google + ${m} do ML`)
+        const y = data.resultados?.youtube?.coletados || 0
+        setMsg(`Coletados: ${g} Google + ${m} ML + ${y} YouTube`)
         load()
       }
     } catch (e: any) {
@@ -83,7 +85,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex items-center gap-2 mb-4">
-          {[{ id: '', label: 'Todas' }, { id: 'google_trends', label: 'Google' }, { id: 'ml_trends', label: 'ML' }, { id: 'meta_ads', label: 'Meta Ads' }].map(f => (
+          {[{ id: '', label: 'Todas' }, { id: 'google_trends', label: 'Google' }, { id: 'ml_trends', label: 'ML' }, { id: 'youtube', label: 'YouTube' }, { id: 'meta_ads', label: 'Meta Ads' }].map(f => (
             <button key={f.id} onClick={() => setFiltroFonte(f.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filtroFonte === f.id ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border'}`}>
               {f.label}
@@ -110,8 +112,11 @@ export default function Dashboard() {
                       <p className="text-sm font-medium text-gray-800 leading-tight">{t.keyword}</p>
                       <Badge className={`${fonte.color} text-xs shrink-0`}>{fonte.label}</Badge>
                     </div>
+                    {t.fonte === 'youtube' && t.categoria && (
+                      <p className="text-xs text-gray-500 mt-1">{t.categoria}</p>
+                    )}
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-xs text-gray-500">Vol: {t.volume_relativo.toLocaleString()}</span>
+                      <span className="text-xs text-gray-500">{t.fonte === 'youtube' ? 'Views' : 'Vol'}: {t.volume_relativo.toLocaleString()}</span>
                       {t.variacao_percent !== null && (
                         <span className={`text-xs font-medium ${t.variacao_percent > 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {t.variacao_percent > 0 ? '+' : ''}{t.variacao_percent}%

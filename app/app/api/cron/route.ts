@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { fetchGoogleTrends, fetchMlTrends, saveTrends } from '@/lib/trends'
 import { getMlAccessToken } from '@/lib/ml-auth'
+import { fetchTrendingVideos, trendingToTrendItems } from '@/lib/youtube'
 
 // POST — cron de coleta (roda 2x por dia)
 export async function POST(request: Request) {
@@ -32,6 +33,16 @@ export async function POST(request: Request) {
     }
   } catch (e: any) {
     resultados.ml_trends = { erro: e.message }
+  }
+
+  // YouTube Trending BR
+  try {
+    const videos = await fetchTrendingVideos(30)
+    const items = trendingToTrendItems(videos)
+    const res = await saveTrends(items)
+    resultados.youtube = { coletados: videos.length, salvos: res.saved }
+  } catch (e: any) {
+    resultados.youtube = { erro: e.message }
   }
 
   return NextResponse.json({

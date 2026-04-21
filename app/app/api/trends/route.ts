@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { fetchGoogleTrends, fetchMlTrends, saveTrends } from '@/lib/trends'
 import { getMlAccessToken } from '@/lib/ml-auth'
+import { fetchTrendingVideos, trendingToTrendItems } from '@/lib/youtube'
 
 // GET — lista trends salvos
 export async function GET(request: Request) {
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}))
-    const fontes = body.fontes || ['google_trends', 'ml_trends']
+    const fontes = body.fontes || ['google_trends', 'ml_trends', 'youtube']
 
     const resultados: Record<string, any> = {}
 
@@ -50,6 +51,13 @@ export async function POST(request: Request) {
       } else {
         resultados.ml_trends = { erro: 'Token ML não disponível' }
       }
+    }
+
+    if (fontes.includes('youtube')) {
+      const videos = await fetchTrendingVideos(30)
+      const items = trendingToTrendItems(videos)
+      const res = await saveTrends(items)
+      resultados.youtube = { coletados: videos.length, salvos: res.saved }
     }
 
     return NextResponse.json({ ok: true, resultados })

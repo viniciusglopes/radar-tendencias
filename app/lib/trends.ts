@@ -2,7 +2,7 @@ import { supabaseAdmin } from './supabase'
 
 export interface TrendItem {
   keyword: string
-  fonte: 'google_trends' | 'ml_trends' | 'meta_ads'
+  fonte: 'google_trends' | 'ml_trends' | 'meta_ads' | 'youtube'
   categoria: string | null
   volume_relativo: number
   variacao_percent: number | null
